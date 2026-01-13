@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5be95258c380840449f36919825b9530, type: 3}
+  m_Name: VFXLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::BaseDefender.VFX.VFXLibrary
+  playerEffects:
+  - vfxType: 0
+    prefab: {fileID: 5501729707290708043, guid: d0e02cdd20350af4e884d4ecf6c28a47, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 10
+    maxPoolSize: 20
+    maxDistance: 0
+    scaleWithPerformance: 0
+  towerEffects: []
+  combatEffects: []
+  collectionEffects: []
+  environmentEffects: []
+  uiEffects: []

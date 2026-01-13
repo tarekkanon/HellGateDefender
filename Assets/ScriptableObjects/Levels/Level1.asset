@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be5a9a0bef69ed840a247af4b10c95cf, type: 3}
+  m_Name: Level1
+  m_EditorClassIdentifier: Assembly-CSharp::LevelConfiguration
+  levelNumber: 1
+  levelName: Level 1
+  levelEnemyPools:
+  - enemyTypeId: Scout
+    prefab: {fileID: 2500837925815745682, guid: e79f0a07cffffdc4591f6a45ad292066, type: 3}
+    initialPoolSize: 50
+    maxPoolSize: 100
+    expandable: 1
+  - enemyTypeId: Grunt
+    prefab: {fileID: 6083986762800386908, guid: c30295ae81601da42b5d6f3275b2aa80, type: 3}
+    initialPoolSize: 50
+    maxPoolSize: 100
+    expandable: 1
+  - enemyTypeId: Tank
+    prefab: {fileID: 8843135069489738386, guid: 19184ac424860b34b8969019a2ffbab9, type: 3}
+    initialPoolSize: 10
+    maxPoolSize: 50
+    expandable: 1
+  waves:
+  - {fileID: 11400000, guid: a79aa99922f10774482ad3bca530d8d4, type: 2}
+  - {fileID: 11400000, guid: 3812311b2996cd343b86dd5ef3327f0a, type: 2}
+  timeBetweenWaves: 2
