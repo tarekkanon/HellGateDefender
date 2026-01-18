@@ -117,12 +117,19 @@ namespace BaseDefender.VFX
         {
             // Create pool using the generic ObjectPool
             ObjectPool<ParticleSystem> pool = new ObjectPool<ParticleSystem>(
-                prefab: effectData.prefab.gameObject,
+                prefab: effectData.prefab,
                 initialSize: effectData.initialPoolSize,
                 maxSize: effectData.maxPoolSize,
                 expandable: true,
                 parent: transform
             );
+
+            // Validate that the pool was created successfully
+            if (pool == null || !pool.IsValid)
+            {
+                Debug.LogError($"VFXManager: Failed to create pool for '{vfxType}'. Check that the prefab has a ParticleSystem component.");
+                return;
+            }
 
             _effectPools[vfxType] = pool;
 

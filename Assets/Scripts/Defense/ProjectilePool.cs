@@ -1,3 +1,4 @@
+using BaseDefender.VFX;
 using UnityEngine;
 
 /// <summary>
@@ -106,8 +107,9 @@ public class ProjectilePool : MonoBehaviour
     /// <param name="rotation">Rotation to spawn with</param>
     /// <param name="damage">Damage the projectile deals</param>
     /// <param name="direction">Direction the projectile travels</param>
+    /// <param name="isPlayerSpawn">Origin of projectile spawn</param>
     /// <returns>Spawned projectile, or null if failed</returns>
-    public Projectile SpawnProjectile(Vector3 position, Quaternion rotation, float damage, Vector3 direction)
+    public Projectile SpawnProjectile(Vector3 position, Quaternion rotation, float damage, Vector3 direction, bool isPlayerSpawn)
     {
         if (!_initialized)
         {
@@ -119,6 +121,13 @@ public class ProjectilePool : MonoBehaviour
         if (projectile != null)
         {
             projectile.Initialize(damage, direction);
+            // Play VFX attached to this projectile and store the reference
+            ParticleSystem vfx = VFXHelper.PlayEffectAttached(
+                isPlayerSpawn ? VFXType.PlayerSpellProjectile : VFXType.TowerSpellProjectile,
+                projectile.transform,
+                Vector3.zero
+            );
+            projectile.SetVFXEffect(vfx);
         }
 
         return projectile;
@@ -127,10 +136,10 @@ public class ProjectilePool : MonoBehaviour
     /// <summary>
     /// Spawn a projectile with calculated rotation from direction
     /// </summary>
-    public Projectile SpawnProjectile(Vector3 position, float damage, Vector3 direction)
+    public Projectile SpawnProjectile(Vector3 position, float damage, Vector3 direction, bool isPlayerSpawn)
     {
         Quaternion rotation = Quaternion.LookRotation(direction);
-        return SpawnProjectile(position, rotation, damage, direction);
+        return SpawnProjectile(position, rotation, damage, direction, isPlayerSpawn);
     }
 
     /// <summary>

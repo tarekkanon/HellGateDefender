@@ -1,5 +1,6 @@
 using UnityEngine;
 using BaseDefender.Core;
+using BaseDefender.VFX;
 
 /// <summary>
 /// Auto-targeting and firing system for the player.
@@ -159,15 +160,20 @@ public class PlayerShooting : MonoBehaviour
             return;
         }
 
-        // Calculate direction to target
-        Vector3 direction = (_currentTarget.position - firePoint.position).normalized;
+        // Calculate direction to target (aim at center of enemy collider)
+        Vector3 targetPosition = _currentTarget.position;
+        if (_targetEnemy.TryGetComponent<Collider>(out Collider enemyCollider))
+        {
+            targetPosition = enemyCollider.bounds.center;
+        }
+        Vector3 direction = (targetPosition - firePoint.position).normalized;
 
         Projectile projectile = null;
 
         // Try to use ProjectilePool first for better performance
         if (ProjectilePool.Instance != null)
         {
-            projectile = ProjectilePool.Instance.SpawnProjectile(firePoint.position, damage, direction);
+            projectile = ProjectilePool.Instance.SpawnProjectile(firePoint.position, damage, direction, true);
         }
         // Fallback to instantiation if pool not available
         else if (projectilePrefab != null)
@@ -193,6 +199,8 @@ public class PlayerShooting : MonoBehaviour
         {
             AudioManager.Instance.PlayPlayerShoot();
         }
+
+        VFXHelper.PlayPlayerMuzzleFlash(firePoint.position, firePoint.rotation);
     }
 
     /// <summary>

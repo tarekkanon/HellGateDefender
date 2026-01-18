@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using BaseDefender.Core;
+using BaseDefender.VFX;
 
 /// <summary>
 /// Singleton game manager that controls the overall game state and economy system.
@@ -36,9 +37,20 @@ public class GameManager : MonoBehaviour
 
     #region Properties
 
-    [SerializeField] 
+    [SerializeField]
     private int _coins = 0;
     private GameState _currentState = GameState.MainMenu;
+
+    [Header("Ambient Atmosphere VFX")]
+    [Tooltip("Enable ambient atmosphere VFX (floating embers, wisps)")]
+    [SerializeField] private bool enableAmbientAtmosphere = true;
+    [Tooltip("Center position for ambient atmosphere (usually map center)")]
+    [SerializeField] private Vector3 ambientAtmospherePosition = Vector3.zero;
+    [Tooltip("Size of the spawn volume for ambient particles")]
+    [SerializeField] private Vector3 ambientAtmosphereVolume = new Vector3(20f, 10f, 20f);
+
+    // VFX tracking
+    private ParticleSystem _ambientAtmosphereVFX;
 
     /// <summary>
     /// Current number of coins the player has
@@ -98,6 +110,9 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.PlayGameplayMusic();
         }
 
+        // Initialize ambient atmosphere VFX
+        InitializeAmbientAtmosphere();
+
         // Find and start the wave manager
         //WaveManager waveManager = FindObjectOfType<WaveManager>();
         //if (waveManager != null)
@@ -108,6 +123,23 @@ public class GameManager : MonoBehaviour
         //{
         //    Debug.LogError("GameManager: WaveManager not found in scene!");
         //}
+    }
+
+    /// <summary>
+    /// Initialize ambient atmosphere VFX (floating embers, dark wisps, energy motes)
+    /// </summary>
+    private void InitializeAmbientAtmosphere()
+    {
+        if (!enableAmbientAtmosphere) return;
+
+        // Stop existing atmosphere if any
+        if (_ambientAtmosphereVFX != null)
+        {
+            VFXHelper.StopEffect(_ambientAtmosphereVFX);
+        }
+
+        // Play new ambient atmosphere with custom volume
+        _ambientAtmosphereVFX = VFXHelper.PlayAmbientAtmosphere(ambientAtmospherePosition, ambientAtmosphereVolume);
     }
 
     /// <summary>
@@ -166,6 +198,10 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Time.timeScale = 1f;
+
+        // Clear VFX before scene reload
+        CleanupGameVFX();
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -175,7 +211,27 @@ public class GameManager : MonoBehaviour
     public void ReturnToMenu()
     {
         Time.timeScale = 1f;
+
+        // Clear VFX before scene transition
+        CleanupGameVFX();
+
         SceneManager.LoadScene("MainMenu");
+    }
+
+    /// <summary>
+    /// Cleanup all game VFX before scene transitions
+    /// </summary>
+    private void CleanupGameVFX()
+    {
+        // Stop ambient atmosphere
+        if (_ambientAtmosphereVFX != null)
+        {
+            VFXHelper.StopEffect(_ambientAtmosphereVFX);
+            _ambientAtmosphereVFX = null;
+        }
+
+        // Clear all active VFX effects
+        VFXHelper.ClearAllEffects();
     }
 
     /// <summary>

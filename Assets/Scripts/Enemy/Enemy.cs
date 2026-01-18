@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using BaseDefender.Core;
+using BaseDefender.VFX;
 
 /// <summary>
 /// Base enemy behavior using NavMesh pathfinding.
@@ -103,6 +104,7 @@ public class Enemy : MonoBehaviour
         }
 
         _currentHealth -= damage;
+        VFXHelper.PlayDemonicHit(transform.position);
 
         if (_currentHealth <= 0)
         {
@@ -159,6 +161,9 @@ public class Enemy : MonoBehaviour
         {
             AudioManager.Instance.PlayEnemyDeath();
         }
+
+        // Play angel death effect with audio
+        VFXHelper.PlayAngelDeath(transform.position);
 
         // Fire enemy killed event
         GameEvents.EnemyKilled(transform.position, coinDrop);

@@ -101,7 +101,7 @@ public class TurretPrompt : MonoBehaviour
         UpdateCostText();
 
         // Hide initially
-        Hide();
+        //Hide();
     }
 
     #endregion

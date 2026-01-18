@@ -14,18 +14,139 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BaseDefender.VFX.VFXLibrary
   playerEffects:
   - vfxType: 0
-    prefab: {fileID: 5501729707290708043, guid: d0e02cdd20350af4e884d4ecf6c28a47, type: 3}
+    prefab: {fileID: 68958314870493792, guid: d0e02cdd20350af4e884d4ecf6c28a47, type: 3}
     priority: 0
     syncWithAudio: 0
     audioClip: {fileID: 0}
     audioVolume: 0
     audioDelay: 0
-    initialPoolSize: 10
+    initialPoolSize: 30
+    maxPoolSize: 80
+    maxDistance: 0
+    scaleWithPerformance: 0
+  - vfxType: 1
+    prefab: {fileID: 68958314870493792, guid: 726bfad8780b6494385830e4065c4b6e, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 30
+    maxPoolSize: 80
+    maxDistance: 0
+    scaleWithPerformance: 0
+  towerEffects:
+  - vfxType: 3
+    prefab: {fileID: 563039327413347018, guid: 33dda258dacc2214f9071f04f95e7bfb, type: 3}
+    priority: 2
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 1
+    audioDelay: 0
+    initialPoolSize: 2
+    maxPoolSize: 10
+    maxDistance: 30
+    scaleWithPerformance: 0
+  - vfxType: 4
+    prefab: {fileID: 5408981415325486132, guid: 140e21c56a42e3c43b51ce4cfcb34965, type: 3}
+    priority: 1
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 1
+    audioDelay: 0
+    initialPoolSize: 20
+    maxPoolSize: 50
+    maxDistance: 40
+    scaleWithPerformance: 0
+  - vfxType: 5
+    prefab: {fileID: 8130766919685633071, guid: a23b3152c5e92084d9a77b08af8af19c, type: 3}
+    priority: 2
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 1
+    audioDelay: 0
+    initialPoolSize: 20
+    maxPoolSize: 80
+    maxDistance: 30
+    scaleWithPerformance: 1
+  - vfxType: 6
+    prefab: {fileID: 7471727675288150178, guid: 20f03afe7e8fc5249bd314b9cf0b01de, type: 3}
+    priority: 1
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 1
+    audioDelay: 0
+    initialPoolSize: 50
+    maxPoolSize: 80
+    maxDistance: 40
+    scaleWithPerformance: 0
+  - vfxType: 7
+    prefab: {fileID: 34534801238511862, guid: 1d83154d8d6ba2f46a0f29bf4bd63896, type: 3}
+    priority: 1
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 1
+    audioDelay: 0
+    initialPoolSize: 50
+    maxPoolSize: 80
+    maxDistance: 30
+    scaleWithPerformance: 0
+  combatEffects:
+  - vfxType: 8
+    prefab: {fileID: 6545195600417021639, guid: 6bb77243bdaa5e14888042438e9eed8b, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 50
+    maxPoolSize: 80
+    maxDistance: 0
+    scaleWithPerformance: 0
+  - vfxType: 9
+    prefab: {fileID: 1300168843248533975, guid: 95c1b81f6c576db4f9839158672cff5a, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 30
+    maxPoolSize: 80
+    maxDistance: 0
+    scaleWithPerformance: 0
+  - vfxType: 10
+    prefab: {fileID: 2059170065894873575, guid: 8f688f6328b8b3a499425fc005afa73d, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 50
+    maxPoolSize: 80
+    maxDistance: 0
+    scaleWithPerformance: 0
+  collectionEffects: []
+  environmentEffects:
+  - vfxType: 15
+    prefab: {fileID: 7933261258084349199, guid: 6234a172fcdf07e448e10c39205a740a, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 2
+    maxPoolSize: 4
+    maxDistance: 0
+    scaleWithPerformance: 0
+  - vfxType: 16
+    prefab: {fileID: 3025222804408710988, guid: 0471677ba1064fd4f886097fe6a87f48, type: 3}
+    priority: 0
+    syncWithAudio: 0
+    audioClip: {fileID: 0}
+    audioVolume: 0
+    audioDelay: 0
+    initialPoolSize: 5
     maxPoolSize: 20
     maxDistance: 0
     scaleWithPerformance: 0
-  towerEffects: []
-  combatEffects: []
-  collectionEffects: []
-  environmentEffects: []
   uiEffects: []

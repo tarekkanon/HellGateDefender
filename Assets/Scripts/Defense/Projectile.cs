@@ -97,7 +97,7 @@ public class Projectile : MonoBehaviour
     public void Initialize(float damage, Vector3 direction)
     {
         _damage = damage;
-        _direction = direction.normalized;
+        _direction = direction;
         _lifeTimer = lifetime;
         _hasHit = false;
 
@@ -105,13 +105,22 @@ public class Projectile : MonoBehaviour
         if (_direction.magnitude > 0.01f)
         {
             transform.rotation = Quaternion.LookRotation(_direction);
-            // Play VFX attached to this projectile
-            vfxEffect = VFXHelper.PlayEffectAttached(
-                VFXType.PlayerSpellProjectile,
-                transform,
-                Vector3.zero
-            );
         }
+    }
+
+    /// <summary>
+    /// Set the VFX effect attached to this projectile
+    /// </summary>
+    /// <param name="effect">The particle system attached to this projectile</param>
+    public void SetVFXEffect(ParticleSystem effect)
+    {
+        // Clean up any existing VFX first to prevent duplicates
+        if (vfxEffect != null)
+        {
+            VFXHelper.StopEffect(vfxEffect);
+        }
+
+        vfxEffect = effect;
     }
 
     #endregion

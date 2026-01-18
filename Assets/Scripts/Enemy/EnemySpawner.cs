@@ -1,9 +1,12 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using BaseDefender.VFX;
 
 /// <summary>
 /// Utility class for spawning and tracking enemies.
 /// Provides helper methods for enemy instantiation and management.
+/// Supports spawn portal VFX for dramatic enemy entrances.
 /// </summary>
 public class EnemySpawner : MonoBehaviour
 {
@@ -115,6 +118,51 @@ public class EnemySpawner : MonoBehaviour
     public static Enemy SpawnEnemyPooled(string enemyTypeId, Vector3 position)
     {
         return SpawnEnemyPooled(enemyTypeId, position, Quaternion.identity);
+    }
+
+    /// <summary>
+    /// Spawn an enemy with a spawn portal VFX effect (for dramatic entrances)
+    /// </summary>
+    /// <param name="prefab">Enemy prefab to spawn</param>
+    /// <param name="position">World position to spawn at</param>
+    /// <param name="onSpawnComplete">Callback when spawn is complete</param>
+    public static void SpawnEnemyWithPortal(GameObject prefab, Vector3 position, System.Action<Enemy> onSpawnComplete = null)
+    {
+        if (prefab == null)
+        {
+            Debug.LogError("EnemySpawner: Cannot spawn null prefab!");
+            onSpawnComplete?.Invoke(null);
+            return;
+        }
+
+        // Play spawn portal effect with callback
+        VFXHelper.PlaySpawnPortal(position,
+            onEnemySpawn: () =>
+            {
+                // Spawn the enemy when portal is ready
+                Enemy enemy = SpawnEnemy(prefab, position);
+                onSpawnComplete?.Invoke(enemy);
+            }
+        );
+    }
+
+    /// <summary>
+    /// Spawn a pooled enemy with a spawn portal VFX effect
+    /// </summary>
+    /// <param name="enemyTypeId">Type ID of enemy to spawn</param>
+    /// <param name="position">World position to spawn at</param>
+    /// <param name="onSpawnComplete">Callback when spawn is complete</param>
+    public static void SpawnEnemyPooledWithPortal(string enemyTypeId, Vector3 position, System.Action<Enemy> onSpawnComplete = null)
+    {
+        // Play spawn portal effect with callback
+        VFXHelper.PlaySpawnPortal(position,
+            onEnemySpawn: () =>
+            {
+                // Spawn the enemy when portal is ready
+                Enemy enemy = SpawnEnemyPooled(enemyTypeId, position);
+                onSpawnComplete?.Invoke(enemy);
+            }
+        );
     }
 
     /// <summary>

@@ -14,8 +14,8 @@ namespace BaseDefender.VFX
         public VFXType vfxType;
 
         [Header("VFX Settings")]
-        [Tooltip("The particle system prefab for this effect")]
-        public ParticleSystem prefab;
+        [Tooltip("The VFX prefab (can be a GameObject with ParticleSystem or a parent GameObject with child ParticleSystems for multi-phase effects)")]
+        public GameObject prefab;
 
         [Tooltip("Priority level for this effect (0=Critical, 1=High, 2=Medium, 3=Low)")]
         [Range(0, 3)]
@@ -61,6 +61,19 @@ namespace BaseDefender.VFX
             if (prefab == null)
             {
                 Debug.LogWarning($"VFXData for {vfxType} has no prefab assigned!");
+                return false;
+            }
+
+            // Check if the prefab has a ParticleSystem component (either on itself or children)
+            ParticleSystem ps = prefab.GetComponent<ParticleSystem>();
+            if (ps == null)
+            {
+                ps = prefab.GetComponentInChildren<ParticleSystem>();
+            }
+
+            if (ps == null)
+            {
+                Debug.LogWarning($"VFXData for {vfxType} has no ParticleSystem component on prefab or its children!");
                 return false;
             }
 

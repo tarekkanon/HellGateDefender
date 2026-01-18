@@ -37,6 +37,11 @@ public class ObjectPool<T> where T : Component
     /// </summary>
     public int TotalCount => AvailableCount + ActiveCount;
 
+    /// <summary>
+    /// Check if the pool was initialized successfully
+    /// </summary>
+    public bool IsValid => _availableObjects != null && _activeObjects != null;
+
     #endregion
 
     #region Constructor
@@ -57,9 +62,16 @@ public class ObjectPool<T> where T : Component
             return;
         }
 
-        if (prefab.GetComponent<T>() == null)
+        // Check for component on the prefab or its children
+        T component = prefab.GetComponent<T>();
+        if (component == null)
         {
-            Debug.LogError($"ObjectPool: Prefab '{prefab.name}' doesn't have component of type {typeof(T).Name}!");
+            component = prefab.GetComponentInChildren<T>();
+        }
+
+        if (component == null)
+        {
+            Debug.LogError($"ObjectPool: Prefab '{prefab.name}' doesn't have component of type {typeof(T).Name} on itself or its children!");
             return;
         }
 
@@ -88,6 +100,13 @@ public class ObjectPool<T> where T : Component
     /// <returns>Pooled object, or null if pool is at max capacity</returns>
     public T Get(Vector3 position, Quaternion rotation)
     {
+        // Safety check: ensure pool is properly initialized
+        if (!IsValid)
+        {
+            Debug.LogError($"ObjectPool: Cannot get object from uninitialized pool for type {typeof(T).Name}!");
+            return null;
+        }
+
         T obj = null;
 
         // Try to get an available object
@@ -228,7 +247,13 @@ public class ObjectPool<T> where T : Component
         GameObject newObj = Object.Instantiate(_prefab, _parentTransform);
         newObj.name = $"{_prefab.name} (Pooled)";
 
+        // Get component from the instantiated object or its children
         T component = newObj.GetComponent<T>();
+        if (component == null)
+        {
+            component = newObj.GetComponentInChildren<T>();
+        }
+
         if (component == null)
         {
             Debug.LogError($"ObjectPool: Created object doesn't have component {typeof(T).Name}!");

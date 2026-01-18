@@ -31,6 +31,5 @@ MonoBehaviour:
     maxPoolSize: 50
     expandable: 1
   waves:
-  - {fileID: 11400000, guid: a79aa99922f10774482ad3bca530d8d4, type: 2}
-  - {fileID: 11400000, guid: 3812311b2996cd343b86dd5ef3327f0a, type: 2}
+  - {fileID: 11400000, guid: 445824d4afc692f4fbe7320aef9d5293, type: 2}
   timeBetweenWaves: 2

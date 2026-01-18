@@ -32,10 +32,10 @@ namespace BaseDefender.VFX
 
         [Header("Size & Lifetime")]
         [Tooltip("Minimum particle start size")]
-        [SerializeField] private float minStartSize = 0.2f;
+        [SerializeField] private float minStartSize = 1.0f;
 
         [Tooltip("Maximum particle start size")]
-        [SerializeField] private float maxStartSize = 0.3f;
+        [SerializeField] private float maxStartSize = 1.5f;
 
         [Tooltip("Particle lifetime in seconds")]
         [SerializeField] private float particleLifetime = 0.5f;
@@ -248,7 +248,7 @@ namespace BaseDefender.VFX
             var shape = _particleSystem.shape;
             shape.enabled = true;
             shape.shapeType = ParticleSystemShapeType.Sphere;
-            shape.radius = 0.1f;
+            shape.radius = 0.5f;
             shape.radiusThickness = 1f;
             shape.arc = 360f;
             shape.arcMode = ParticleSystemShapeMultiModeValue.Random;
@@ -335,7 +335,7 @@ namespace BaseDefender.VFX
                 renderer.renderMode = ParticleSystemRenderMode.Billboard;
                 renderer.sortMode = ParticleSystemSortMode.Distance;
                 renderer.minParticleSize = 0f;
-                renderer.maxParticleSize = 0.5f;
+                renderer.maxParticleSize = 2.5f;
                 renderer.alignment = ParticleSystemRenderSpace.View;
                 renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 renderer.receiveShadows = false;
@@ -354,7 +354,7 @@ namespace BaseDefender.VFX
 
             // Width curve
             AnimationCurve widthCurve = new AnimationCurve();
-            widthCurve.AddKey(0f, 0.15f);
+            widthCurve.AddKey(0f, 0.75f);
             widthCurve.AddKey(1f, 0f);
             trailRenderer.widthCurve = widthCurve;
 

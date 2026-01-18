@@ -1,5 +1,6 @@
 using UnityEngine;
 using BaseDefender.Core;
+using BaseDefender.VFX;
 
 /// <summary>
 /// The base structure that players must defend.
@@ -15,11 +16,19 @@ public class Base : MonoBehaviour
     [Header("Visual Feedback (Optional)")]
     [SerializeField] private GameObject[] damageStates; // Optional: different models for damage levels
 
+    [Header("Shield VFX")]
+    [Tooltip("Enable shield VFX around the base")]
+    [SerializeField] private bool enableShieldVFX = true;
+    [Tooltip("Shield radius (default 5 units)")]
+    [SerializeField] private float shieldRadius = 5f;
+
     #endregion
 
     #region Private Fields
 
     private int _currentHealth;
+    private ParticleSystem _shieldVFX;
+    private bool _shieldDamaged = false;
 
     #endregion
 
@@ -64,10 +73,30 @@ public class Base : MonoBehaviour
     public void Initialize()
     {
         _currentHealth = maxHealth;
+        _shieldDamaged = false;
         UpdateVisuals();
+
+        // Initialize shield VFX
+        if (enableShieldVFX)
+        {
+            InitializeShieldVFX();
+        }
 
         // Fire initial health changed event
         GameEvents.BaseHealthChanged(_currentHealth, maxHealth);
+    }
+
+    /// <summary>
+    /// Initialize the shield VFX around the base
+    /// </summary>
+    private void InitializeShieldVFX()
+    {
+        if (_shieldVFX != null)
+        {
+            VFXHelper.StopEffect(_shieldVFX);
+        }
+
+        _shieldVFX = VFXHelper.PlayBaseShield(transform, shieldRadius);
     }
 
     /// <summary>
@@ -97,9 +126,15 @@ public class Base : MonoBehaviour
             AudioManager.Instance.PlayBaseHit();
         }
 
+        // Play angelic hit effect with audio
+        VFXHelper.PlayAngelicHit(transform.position);
+
         // Fire events
         GameEvents.BaseDamaged(damage);
         GameEvents.BaseHealthChanged(_currentHealth, maxHealth);
+
+        // Update shield state based on health
+        UpdateShieldState();
 
         // Update visuals
         UpdateVisuals();
@@ -108,6 +143,23 @@ public class Base : MonoBehaviour
         if (_currentHealth <= 0)
         {
             OnDestroyed();
+        }
+    }
+
+    /// <summary>
+    /// Update shield VFX state based on health percentage
+    /// </summary>
+    private void UpdateShieldState()
+    {
+        if (!enableShieldVFX || _shieldVFX == null) return;
+
+        float healthPercent = HealthPercentage;
+
+        // Transition to damaged state at 50% health
+        if (healthPercent <= 0.5f && !_shieldDamaged)
+        {
+            _shieldDamaged = true;
+            VFXHelper.SetBaseShieldDamaged(_shieldVFX);
         }
     }
 
@@ -148,6 +200,12 @@ public class Base : MonoBehaviour
     /// </summary>
     private void OnDestroyed()
     {
+        // Destroy shield VFX
+        if (enableShieldVFX && _shieldVFX != null)
+        {
+            VFXHelper.DestroyBaseShield(_shieldVFX);
+        }
+
         // Fire destroyed event
         GameEvents.BaseDestroyed();
 

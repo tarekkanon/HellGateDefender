@@ -30,8 +30,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4701766079381576956}
   - {fileID: 1869409991067522175}
@@ -291,8 +291,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.2
+      scalar: 0.6
+      minScalar: 0.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -344,8 +344,8 @@ ParticleSystem:
     startSizeY:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.2
+      scalar: 0.6
+      minScalar: 0.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -397,8 +397,8 @@ ParticleSystem:
     startSizeZ:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.2
+      scalar: 0.6
+      minScalar: 0.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -4795,7 +4795,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: be9630f625234654aa8c5ca13acd8d4f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4867,8 +4867,8 @@ MonoBehaviour:
   endColor: {r: 0.29, g: 0, b: 0.51, a: 0.78}
   maxParticles: 20
   emissionRate: 15
-  minStartSize: 0.2
-  maxStartSize: 0.3
+  minStartSize: 0.4
+  maxStartSize: 0.6
   particleLifetime: 0.5
   noiseStrength: 0.4
   noiseFrequency: 1.5
@@ -4939,7 +4939,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 1, g: 0.2705882, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.27, b: 0, a: 1}
   m_Intensity: 2
   m_Range: 3
   m_SpotAngle: 30
@@ -5049,9 +5049,9 @@ Transform:
   m_GameObject: {fileID: 8207226400178620529}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 1.43, y: 0, z: 2.25}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4992394321631483357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5065,7 +5065,7 @@ TrailRenderer:
   m_GameObject: {fileID: 8207226400178620529}
   m_Enabled: 1
   m_CastShadows: 0
-  m_ReceiveShadows: 1
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
   m_MotionVectors: 0
@@ -5081,7 +5081,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 59f77a9852d3c5c4783dab145bf6035f, type: 2}
+  - {fileID: 2100000, guid: be9630f625234654aa8c5ca13acd8d4f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5115,8 +5115,8 @@ TrailRenderer:
       - serializedVersion: 3
         time: 0
         value: 0.15
-        inSlope: 0
-        outSlope: 0
+        inSlope: -0.15
+        outSlope: -0.15
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
@@ -5124,20 +5124,20 @@ TrailRenderer:
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: 0
-        outSlope: 0
+        inSlope: -0.15
+        outSlope: -0.15
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0
-        outWeight: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.27058825, b: 0, a: 1}
-      key1: {r: 0.8627451, g: 0.078431375, b: 0.23529412, a: 1}
-      key2: {r: 0.29411766, g: 0, b: 0.11764706, a: 0}
+      key0: {r: 1, g: 0.27, b: 0, a: 1}
+      key1: {r: 0.86, g: 0.08, b: 0.24, a: 0.6}
+      key2: {r: 0.29, g: 0, b: 0.51, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
@@ -5152,17 +5152,17 @@ TrailRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 65535
-      atime2: 0
+      atime1: 32768
+      atime2: 65535
       atime3: 0
       atime4: 0
       atime5: 0
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_ColorSpace: 0
+      m_ColorSpace: -1
       m_NumColorKeys: 3
-      m_NumAlphaKeys: 2
+      m_NumAlphaKeys: 3
     numCornerVertices: 4
     numCapVertices: 4
     alignment: 0

@@ -84,16 +84,29 @@ namespace BaseDefender.VFX
         #region Combat Effects
 
         /// <summary>
-        /// Play demonic hit on angel effect (no audio, impact only)
+        /// Play demonic hit on angel effect (impact burst + corruption sparks + markers)
         /// </summary>
+        /// <param name="position">World position of the impact</param>
         public static ParticleSystem PlayDemonicHit(Vector3 position)
         {
             return VFXManager.Instance?.PlayEffect(VFXType.DemonicHitOnAngel, position);
         }
 
         /// <summary>
-        /// Play angelic hit on demonic effect with audio
+        /// Play demonic hit on angel effect facing a specific direction
         /// </summary>
+        /// <param name="position">World position of the impact</param>
+        /// <param name="impactNormal">Normal direction of the impact surface</param>
+        public static ParticleSystem PlayDemonicHit(Vector3 position, Vector3 impactNormal)
+        {
+            Quaternion rotation = Quaternion.LookRotation(impactNormal);
+            return VFXManager.Instance?.PlayEffect(VFXType.DemonicHitOnAngel, position, rotation);
+        }
+
+        /// <summary>
+        /// Play angelic hit on demonic effect with audio (radiant burst + light flash)
+        /// </summary>
+        /// <param name="position">World position of the impact</param>
         public static ParticleSystem PlayAngelicHit(Vector3 position)
         {
             return VFXManager.Instance?.PlayEffectWithAudio(
@@ -104,8 +117,22 @@ namespace BaseDefender.VFX
         }
 
         /// <summary>
-        /// Play angel death effect with audio
+        /// Play angelic hit on demonic effect facing a specific direction
         /// </summary>
+        /// <param name="position">World position of the impact</param>
+        /// <param name="impactNormal">Normal direction of the impact surface</param>
+        public static ParticleSystem PlayAngelicHit(Vector3 position, Vector3 impactNormal)
+        {
+            Quaternion rotation = Quaternion.LookRotation(impactNormal);
+            var ps = VFXManager.Instance?.PlayEffect(VFXType.AngelicHitOnDemonic, position, rotation);
+            AudioManager.Instance?.PlayBaseHit();
+            return ps;
+        }
+
+        /// <summary>
+        /// Play angel death effect with audio (3-phase: corruption spread → dissolution → soul release)
+        /// </summary>
+        /// <param name="position">World position of the dying angel</param>
         public static ParticleSystem PlayAngelDeath(Vector3 position)
         {
             return VFXManager.Instance?.PlayEffectWithAudio(
@@ -113,6 +140,29 @@ namespace BaseDefender.VFX
                 position,
                 () => AudioManager.Instance?.PlayEnemyDeath()
             );
+        }
+
+        /// <summary>
+        /// Play the full angel death sequence with config control
+        /// Allows manual triggering of the 3-phase death effect
+        /// </summary>
+        /// <param name="position">World position of the dying angel</param>
+        /// <returns>The particle system with AngelDeathConfig for additional control</returns>
+        public static ParticleSystem PlayAngelDeathSequence(Vector3 position)
+        {
+            ParticleSystem ps = VFXManager.Instance?.PlayEffect(VFXType.AngelDeath, position);
+
+            if (ps != null)
+            {
+                AngelDeathConfig config = ps.GetComponent<AngelDeathConfig>();
+                if (config != null)
+                {
+                    config.PlayDeathSequence();
+                }
+                AudioManager.Instance?.PlayEnemyDeath();
+            }
+
+            return ps;
         }
 
         #endregion
@@ -152,19 +202,71 @@ namespace BaseDefender.VFX
         #region Environment Effects
 
         /// <summary>
-        /// Play spawn portal effect
+        /// Play spawn portal effect with enemy spawn callback
         /// </summary>
-        public static ParticleSystem PlaySpawnPortal(Vector3 position)
+        /// <param name="position">World position for the portal</param>
+        /// <param name="onEnemySpawn">Callback invoked when enemy should spawn (at 0.7s)</param>
+        /// <param name="onComplete">Callback invoked when portal sequence completes</param>
+        public static ParticleSystem PlaySpawnPortal(Vector3 position, System.Action onEnemySpawn = null, System.Action onComplete = null)
+        {
+            ParticleSystem ps = VFXManager.Instance?.PlayEffect(VFXType.SpawnPortal, position);
+
+            if (ps != null && (onEnemySpawn != null || onComplete != null))
+            {
+                SpawnPortalConfig config = ps.GetComponent<SpawnPortalConfig>();
+                if (config != null)
+                {
+                    if (onEnemySpawn != null)
+                    {
+                        config.OnEnemySpawnTime += onEnemySpawn;
+                    }
+                    if (onComplete != null)
+                    {
+                        config.OnPortalComplete += onComplete;
+                    }
+                    config.PlayPortalSequence();
+                }
+            }
+
+            return ps;
+        }
+
+        /// <summary>
+        /// Play spawn portal effect at position (simple version without callbacks)
+        /// </summary>
+        public static ParticleSystem PlaySpawnPortalSimple(Vector3 position)
         {
             return VFXManager.Instance?.PlayEffect(VFXType.SpawnPortal, position);
         }
 
         /// <summary>
         /// Play ambient atmosphere effect (typically one instance in scene)
+        /// Includes floating embers, dark wisps, and energy motes
         /// </summary>
         public static ParticleSystem PlayAmbientAtmosphere(Vector3 position)
         {
             return VFXManager.Instance?.PlayEffect(VFXType.AmbientAtmosphere, position);
+        }
+
+        /// <summary>
+        /// Play ambient atmosphere effect with custom spawn volume
+        /// </summary>
+        /// <param name="position">Center position for the effect</param>
+        /// <param name="spawnVolumeSize">Size of the spawn area (width, height, depth)</param>
+        public static ParticleSystem PlayAmbientAtmosphere(Vector3 position, Vector3 spawnVolumeSize)
+        {
+            ParticleSystem ps = VFXManager.Instance?.PlayEffect(VFXType.AmbientAtmosphere, position);
+
+            if (ps != null)
+            {
+                AmbientAtmosphereConfig config = ps.GetComponent<AmbientAtmosphereConfig>();
+                if (config != null)
+                {
+                    config.SetSpawnVolume(spawnVolumeSize);
+                }
+            }
+
+            return ps;
         }
 
         /// <summary>
@@ -173,6 +275,68 @@ namespace BaseDefender.VFX
         public static ParticleSystem PlayBaseShield(Transform baseTransform)
         {
             return VFXManager.Instance?.PlayEffectAttached(VFXType.BaseShield, baseTransform);
+        }
+
+        /// <summary>
+        /// Play base shield effect with custom radius
+        /// </summary>
+        /// <param name="baseTransform">Transform to attach shield to</param>
+        /// <param name="radius">Radius of the shield dome</param>
+        public static ParticleSystem PlayBaseShield(Transform baseTransform, float radius)
+        {
+            ParticleSystem ps = VFXManager.Instance?.PlayEffectAttached(VFXType.BaseShield, baseTransform);
+
+            if (ps != null)
+            {
+                BaseShieldConfig config = ps.GetComponent<BaseShieldConfig>();
+                if (config != null)
+                {
+                    config.SetShieldRadius(radius);
+                }
+            }
+
+            return ps;
+        }
+
+        /// <summary>
+        /// Set base shield to damaged state (flickering, increased particles)
+        /// Call this when base health falls below 50%
+        /// </summary>
+        public static void SetBaseShieldDamaged(ParticleSystem shieldEffect)
+        {
+            if (shieldEffect == null) return;
+
+            BaseShieldConfig config = shieldEffect.GetComponent<BaseShieldConfig>();
+            if (config != null)
+            {
+                config.SetDamagedState();
+            }
+        }
+
+        /// <summary>
+        /// Play base shield destruction effect
+        /// Call this when base is destroyed
+        /// </summary>
+        public static void DestroyBaseShield(ParticleSystem shieldEffect)
+        {
+            if (shieldEffect == null) return;
+
+            BaseShieldConfig config = shieldEffect.GetComponent<BaseShieldConfig>();
+            if (config != null)
+            {
+                config.DestroyShield();
+            }
+        }
+
+        /// <summary>
+        /// Get the enemy spawn time for a spawn portal (for synchronization)
+        /// </summary>
+        public static float GetSpawnPortalEnemySpawnTime(ParticleSystem portalEffect)
+        {
+            if (portalEffect == null) return 0.7f; // Default
+
+            SpawnPortalConfig config = portalEffect.GetComponent<SpawnPortalConfig>();
+            return config != null ? config.GetEnemySpawnTime() : 0.7f;
         }
 
         #endregion

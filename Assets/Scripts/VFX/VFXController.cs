@@ -5,8 +5,9 @@ namespace BaseDefender.VFX
     /// <summary>
     /// Component attached to VFX prefabs for enhanced control and callbacks.
     /// Allows VFX to trigger events, play audio, and handle custom behavior.
+    /// Supports both single-phase VFX (with ParticleSystem on same GameObject) and
+    /// multi-phase VFX (with child ParticleSystems).
     /// </summary>
-    [RequireComponent(typeof(ParticleSystem))]
     public class VFXController : MonoBehaviour
     {
         [Header("VFX Settings")]
@@ -47,14 +48,34 @@ namespace BaseDefender.VFX
         public System.Action OnVFXCompleted;
 
         private ParticleSystem _particleSystem;
+        private ParticleSystem[] _allParticleSystems;
         private float _startTime;
         private bool _hasPlayed = false;
+        private bool _isMultiPhase = false;
 
         #region Properties
 
         public VFXType VFXType => vfxType;
         public ParticleSystem ParticleSystem => _particleSystem;
-        public bool IsPlaying => _particleSystem != null && _particleSystem.isPlaying;
+        public ParticleSystem[] AllParticleSystems => _allParticleSystems;
+        public bool IsMultiPhase => _isMultiPhase;
+        public bool IsPlaying
+        {
+            get
+            {
+                if (_allParticleSystems == null || _allParticleSystems.Length == 0) return false;
+
+                // Return true if any particle system is playing
+                foreach (var ps in _allParticleSystems)
+                {
+                    if (ps != null && ps.isPlaying)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
 
         #endregion
 
@@ -62,10 +83,24 @@ namespace BaseDefender.VFX
 
         private void Awake()
         {
+            // Try to get ParticleSystem on this GameObject first (single-phase)
             _particleSystem = GetComponent<ParticleSystem>();
-            if (_particleSystem == null)
+
+            // Get all particle systems (includes this GameObject and children)
+            _allParticleSystems = GetComponentsInChildren<ParticleSystem>();
+
+            // Determine if this is a multi-phase effect
+            _isMultiPhase = _particleSystem == null && _allParticleSystems.Length > 0;
+
+            if (_isMultiPhase)
             {
-                Debug.LogError($"VFXController on '{gameObject.name}' requires a ParticleSystem component!");
+                // For multi-phase, use the first child as the main particle system for duration calculations
+                _particleSystem = _allParticleSystems[0];
+            }
+
+            if (_particleSystem == null && _allParticleSystems.Length == 0)
+            {
+                Debug.LogError($"VFXController on '{gameObject.name}' requires at least one ParticleSystem component (either on this GameObject or its children)!");
             }
         }
 
@@ -91,11 +126,33 @@ namespace BaseDefender.VFX
         private void Update()
         {
             // Handle auto-destroy
-            if (autoDestroy && _particleSystem != null)
+            if (autoDestroy && _allParticleSystems != null && _allParticleSystems.Length > 0)
             {
-                float lifetime = customLifetime > 0 ? customLifetime : _particleSystem.main.duration + _particleSystem.main.startLifetime.constantMax;
+                float lifetime = customLifetime;
 
-                if (Time.time - _startTime >= lifetime && _particleSystem.particleCount == 0)
+                // Calculate lifetime from particle systems if not custom set
+                if (customLifetime <= 0 && _particleSystem != null)
+                {
+                    lifetime = _particleSystem.main.duration + _particleSystem.main.startLifetime.constantMax;
+                }
+
+                // Check if all particle systems are finished
+                bool allFinished = true;
+                int totalParticleCount = 0;
+
+                foreach (var ps in _allParticleSystems)
+                {
+                    if (ps != null)
+                    {
+                        totalParticleCount += ps.particleCount;
+                        if (ps.isPlaying)
+                        {
+                            allFinished = false;
+                        }
+                    }
+                }
+
+                if (Time.time - _startTime >= lifetime && totalParticleCount == 0 && allFinished)
                 {
                     if (enableCallbacks)
                     {
@@ -112,13 +169,21 @@ namespace BaseDefender.VFX
         #region Public Methods
 
         /// <summary>
-        /// Play the VFX effect
+        /// Play the VFX effect (supports both single and multi-phase VFX)
         /// </summary>
         public void Play()
         {
-            if (_particleSystem == null) return;
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
 
-            _particleSystem.Play(true);
+            // Play all particle systems
+            foreach (var ps in _allParticleSystems)
+            {
+                if (ps != null)
+                {
+                    ps.Play(true);
+                }
+            }
+
             _hasPlayed = true;
             _startTime = Time.time;
 
@@ -143,19 +208,20 @@ namespace BaseDefender.VFX
         }
 
         /// <summary>
-        /// Stop the VFX effect
+        /// Stop the VFX effect (supports both single and multi-phase VFX)
         /// </summary>
         public void Stop(bool clearParticles = true)
         {
-            if (_particleSystem == null) return;
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
 
-            if (clearParticles)
+            var stopBehavior = clearParticles ? ParticleSystemStopBehavior.StopEmittingAndClear : ParticleSystemStopBehavior.StopEmitting;
+
+            foreach (var ps in _allParticleSystems)
             {
-                _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
-            else
-            {
-                _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                if (ps != null)
+                {
+                    ps.Stop(true, stopBehavior);
+                }
             }
 
             if (enableCallbacks)
@@ -165,58 +231,86 @@ namespace BaseDefender.VFX
         }
 
         /// <summary>
-        /// Pause the VFX effect
+        /// Pause the VFX effect (supports both single and multi-phase VFX)
         /// </summary>
         public void Pause()
         {
-            if (_particleSystem != null)
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
+
+            foreach (var ps in _allParticleSystems)
             {
-                _particleSystem.Pause(true);
+                if (ps != null)
+                {
+                    ps.Pause(true);
+                }
             }
         }
 
         /// <summary>
-        /// Resume the VFX effect
+        /// Resume the VFX effect (supports both single and multi-phase VFX)
         /// </summary>
         public void Resume()
         {
-            if (_particleSystem != null)
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
+
+            foreach (var ps in _allParticleSystems)
             {
-                _particleSystem.Play(true);
+                if (ps != null)
+                {
+                    ps.Play(true);
+                }
             }
         }
 
         /// <summary>
-        /// Set the color of the particle system
+        /// Set the color of all particle systems
         /// </summary>
         public void SetColor(Color color)
         {
-            if (_particleSystem == null) return;
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
 
-            var main = _particleSystem.main;
-            main.startColor = color;
+            foreach (var ps in _allParticleSystems)
+            {
+                if (ps != null)
+                {
+                    var main = ps.main;
+                    main.startColor = color;
+                }
+            }
         }
 
         /// <summary>
-        /// Set the scale of the particle system
+        /// Set the scale of all particle systems
         /// </summary>
         public void SetScale(float scale)
         {
-            if (_particleSystem == null) return;
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
 
-            var main = _particleSystem.main;
-            main.startSizeMultiplier = scale;
+            foreach (var ps in _allParticleSystems)
+            {
+                if (ps != null)
+                {
+                    var main = ps.main;
+                    main.startSizeMultiplier = scale;
+                }
+            }
         }
 
         /// <summary>
-        /// Set the emission rate multiplier
+        /// Set the emission rate multiplier for all particle systems
         /// </summary>
         public void SetEmissionMultiplier(float multiplier)
         {
-            if (_particleSystem == null) return;
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0) return;
 
-            var emission = _particleSystem.emission;
-            emission.rateOverTimeMultiplier = multiplier;
+            foreach (var ps in _allParticleSystems)
+            {
+                if (ps != null)
+                {
+                    var emission = ps.emission;
+                    emission.rateOverTimeMultiplier = multiplier;
+                }
+            }
         }
 
         #endregion
@@ -247,45 +341,69 @@ namespace BaseDefender.VFX
         [ContextMenu("Play VFX")]
         private void EditorPlayVFX()
         {
-            if (_particleSystem == null)
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0)
             {
-                _particleSystem = GetComponent<ParticleSystem>();
+                _allParticleSystems = GetComponentsInChildren<ParticleSystem>();
             }
 
-            if (_particleSystem != null)
+            if (_allParticleSystems != null && _allParticleSystems.Length > 0)
             {
-                _particleSystem.Play();
-                Debug.Log($"Playing VFX: {vfxType}");
+                foreach (var ps in _allParticleSystems)
+                {
+                    if (ps != null)
+                    {
+                        ps.Play(true);
+                    }
+                }
+                Debug.Log($"Playing VFX: {vfxType} ({_allParticleSystems.Length} particle system{(_allParticleSystems.Length > 1 ? "s" : "")})");
             }
         }
 
         [ContextMenu("Stop VFX")]
         private void EditorStopVFX()
         {
-            if (_particleSystem == null)
+            if (_allParticleSystems == null || _allParticleSystems.Length == 0)
             {
-                _particleSystem = GetComponent<ParticleSystem>();
+                _allParticleSystems = GetComponentsInChildren<ParticleSystem>();
             }
 
-            if (_particleSystem != null)
+            if (_allParticleSystems != null && _allParticleSystems.Length > 0)
             {
-                _particleSystem.Stop();
-                _particleSystem.Clear();
+                foreach (var ps in _allParticleSystems)
+                {
+                    if (ps != null)
+                    {
+                        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                        ps.Clear();
+                    }
+                }
                 Debug.Log($"Stopped VFX: {vfxType}");
             }
         }
 
         private void OnValidate()
         {
-            if (_particleSystem == null)
+            // Update particle system references
+            _particleSystem = GetComponent<ParticleSystem>();
+            _allParticleSystems = GetComponentsInChildren<ParticleSystem>();
+            _isMultiPhase = _particleSystem == null && _allParticleSystems.Length > 0;
+
+            if (_isMultiPhase && _allParticleSystems.Length > 0)
             {
-                _particleSystem = GetComponent<ParticleSystem>();
+                _particleSystem = _allParticleSystems[0];
             }
 
             // Auto-name the GameObject based on VFX type
-            if (gameObject.name != $"FX_{vfxType}")
+            string expectedName = $"FX_{vfxType}";
+            if (!gameObject.name.Contains(vfxType.ToString()))
             {
-                gameObject.name = $"FX_{vfxType}";
+                gameObject.name = expectedName;
+            }
+
+            // Log multi-phase status for clarity
+            if (_isMultiPhase)
+            {
+                Debug.Log($"VFXController: '{gameObject.name}' is a multi-phase VFX with {_allParticleSystems.Length} particle systems.");
             }
         }
 #endif
